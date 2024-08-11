@@ -121,8 +121,8 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
             adapter.notifyItemInserted(adapter.itemCount-1)}else{
                 val date=Calendar.getInstance()
                 date.apply{set(Calendar.YEAR,prefs.getInt("date_year_$i",1))
-                    set(Calendar.YEAR,prefs.getInt("date_month_$i",1))
-                    set(Calendar.YEAR,prefs.getInt("date_day_$i",1))}
+                    set(Calendar.MONTH,prefs.getInt("date_month_$i",1))
+                    set(Calendar.DAY_OF_MONTH,prefs.getInt("date_day_$i",1))}
                 val event = Event_Date(
                     prefs.getString("content_${i}", "you stupid, bug for content in oncreate!!")!!,
                     prefs.getInt("plus_${i}", 0),
@@ -155,9 +155,48 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
         val daily= today.get(Calendar.YEAR)>prefs.getInt("last_open_year",today.get(Calendar.YEAR))||
                 today.get(Calendar.DAY_OF_YEAR)>prefs.getInt("last_open_day",today.get(Calendar.DAY_OF_YEAR))
         if(event is Event_Date && event.date.before(today))//&&与 ||或 !非
-        {AlertDialog}
+        {today.add(Calendar.DATE,-1)//两个日期相同的时候 ，before也会返回true，我没查证这个东西，直接暴力-1了
+            val bulider=AlertDialog.Builder(this)
+        bulider.apply {
+            setTitle("你完成了吗？")
+            setMessage("您的事件\n“${event.content}”应该在${event.date.get(Calendar.YEAR)}" +
+                    "/${event.date.get(Calendar.MONTH) + 1}" +
+                    "/${event.date.get(Calendar.DAY_OF_MONTH)}就到期了哟")
+            setPositiveButton("完!成!"){_,_ ->
 
-        else if(event is Event_Daily&& daily){}
+                }
+            setNegativeButton("没有！"){_,_->
+
+                }
+            show()
+            }
+        }
+
+        else if (event is Event_Daily &&daily)
+        {
+            val builder=AlertDialog.Builder(this)
+            val array= arrayOfNulls<CharSequence>(event.time+1)
+            for(i in 0 until event.time+1){
+                array[i]=i.toString()
+            }//你知道吗,string继承charsequence
+            /*
+            https://stackoverflow.com/questions/7861279/how-to-set-single-choice-items-inside-alertdialog
+            Seems that Buttons, Message and Multiple choice items are mutually exclusive.
+            Try to comment out setMessage(), setPositiveButton() and setNegativeButton().
+             Didn't check it myself.
+            https://developer.android.com/develop/ui/views/components/dialogs?hl=zh-cn#DialogFragment
+            "Because the list appears in the dialog's content area,
+            the dialog cannot show both a message and a list
+            and you should set a title for the dialog with setTitle()."
+             */
+            builder.apply {
+                setTitle("你完成了几次事件${event.content}?")
+                //setMessage("您的事件要求")
+                setSingleChoiceItems(array ,-1){_,_ ->}
+                setPositiveButton("a"){_,_->}
+                show()
+            }
+        }
     }
 
     //这两个是右上角菜单的重写
