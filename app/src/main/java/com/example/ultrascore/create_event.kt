@@ -60,6 +60,8 @@ class create_event : AppCompatActivity() {
             val minus=if(binding.editMinus.text.isEmpty()){0} else binding.editMinus.text.toString().toInt()
             val time=if(binding.editTime.text.isEmpty()){-123456789 }else
                 binding.editTime.text.toString().toInt()
+            val last=if(binding.editLastTime.text.isEmpty()){31}else
+                binding.editLastTime.text.toString().toInt()
 
             Log.e("date1","$date_picked")
             intent.apply {
@@ -71,6 +73,7 @@ class create_event : AppCompatActivity() {
                 putExtra("year",date_picked.get(Calendar.YEAR))
                 putExtra("month",date_picked.get(Calendar.MONTH))
                 putExtra("day",date_picked.get(Calendar.DAY_OF_MONTH))
+                putExtra("last",last)
             }
 
             //规范性判断

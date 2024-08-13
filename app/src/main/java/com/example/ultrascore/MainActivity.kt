@@ -40,11 +40,9 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
             val year=result.data?.getIntExtra("year",1) as Int
             val month=result.data?.getIntExtra("month",1) as Int
             val day=result.data?.getIntExtra("day",1)as Int
+            val last=result.data?.getIntExtra("last",-100) as Int
 
             val date=Calendar.getInstance()
-            date.apply{set(Calendar.YEAR,year)
-                set(Calendar.DAY_OF_MONTH,day)
-                set(Calendar.MONTH,month)}
 
             //合理设计事件编号
             var event_num=prefs.getInt("event_num",0)
@@ -52,15 +50,25 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
 
             //根据事件类型创建显示的item并存储
             if(state){
-                val event=Event_Daily(content!!,plus!!,minus!!,event_num,state,time)
+                val event=Event_Daily(content!!,plus!!,minus!!,event_num,state,time,last)
                 //显示新增的事件
                 eventList.add(event)
                 adapter.notifyItemInserted(adapter.itemCount-1)
 
                 event_uncomplete.add("${event_num}")
                 storeEvent(event,event_num,true)//完成信息存储
-                editor.putInt("time_${event_num}",time).apply()
+                editor.apply{
+                    putInt("time_${event_num}",time)
+                    putInt("last_${event_num}",last)
+                    //顺便记录事件的创建日期
+                    putInt("create_year_${event_num}",date.get(Calendar.YEAR))
+                    putInt("create_month_${event_num}",date.get(Calendar.MONTH))
+                    putInt("create_day_${event_num}",date.get(Calendar.DAY_OF_MONTH))
+                    apply() }
             }else{
+                date.apply{set(Calendar.YEAR,year)
+                    set(Calendar.DAY_OF_MONTH,day)
+                    set(Calendar.MONTH,month)}
                 val event=Event_Date(content!!,plus!!,minus!!,event_num,state,date)
                 eventList.add(event)
                 adapter.notifyItemInserted(adapter.itemCount-1)
@@ -115,10 +123,13 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
                     prefs.getInt("plus_${i}", 0),
                     prefs.getInt("minus_${i}", 0),
                     prefs.getInt("series_$i", -114514),//这里写这个数相当于报错
-                    true,prefs.getInt("time_$i",-100)
+                    true,
+                    prefs.getInt("time_$i",-100),
+                    prefs.getInt("last_$i",-100)
                 )//这里也有默认每天完成
             eventList.add(event)
-            adapter.notifyItemInserted(adapter.itemCount-1)}else{
+            adapter.notifyItemInserted(adapter.itemCount-1)}
+            else{
                 val date=Calendar.getInstance()
                 date.apply{set(Calendar.YEAR,prefs.getInt("date_year_$i",1))
                     set(Calendar.MONTH,prefs.getInt("date_month_$i",1))
@@ -152,12 +163,19 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
 
     //强制弹出确认事件是否完成的弹窗
     private fun judgeFinished(event: Event,today:Calendar){
+
+        /*
         val daily= today.get(Calendar.YEAR)>prefs.getInt("last_open_year",today.get(Calendar.YEAR))||
-                today.get(Calendar.DAY_OF_YEAR)>prefs.getInt("last_open_day",today.get(Calendar.DAY_OF_YEAR))
+                today.get(Calendar.DAY_OF_YEAR)>prefs.getInt("last_open_day",today.get(Calendar.DAY_OF_YEAR))//确认此次登录是今天第一次
+
+         */
+
+        today.add(Calendar.DAY_OF_YEAR,-1)//两个日期相同的时候 ，before也会返回true，我没查证这个东西，直接暴力-1了
+        //但以后精确到time就要改了
+        //这个写法是有问题的
         if(event is Event_Date && event.date.before(today))//&&与 ||或 !非
-        {today.add(Calendar.DATE,-1)//两个日期相同的时候 ，before也会返回true，我没查证这个东西，直接暴力-1了
-            val bulider=AlertDialog.Builder(this)
-        bulider.apply {
+        {val bulider=AlertDialog.Builder(this)
+            bulider.apply {
             setTitle("你完成了吗？")
             setMessage("您的事件\n“${event.content}”应该在${event.date.get(Calendar.YEAR)}" +
                     "/${event.date.get(Calendar.MONTH) + 1}" +
@@ -172,30 +190,55 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
             }
         }
 
-        else if (event is Event_Daily &&daily)
+        /*
+        这里写一下 event_daily的逻辑，就是判断今天到创建的日期已经几号了，有没有超过last
+        然后通过和储存的“已判断次数”(already)进行对比，最后确认应该弹出几次这个弹窗，配上时间
+
+         */
+
+        else if (event is Event_Daily )
         {
-            val builder=AlertDialog.Builder(this)
-            val array= arrayOfNulls<CharSequence>(event.time+1)
-            for(i in 0 until event.time+1){
-                array[i]=i.toString()
-            }//你知道吗,string继承charsequence
-            /*
-            https://stackoverflow.com/questions/7861279/how-to-set-single-choice-items-inside-alertdialog
-            Seems that Buttons, Message and Multiple choice items are mutually exclusive.
-            Try to comment out setMessage(), setPositiveButton() and setNegativeButton().
-             Didn't check it myself.
-            https://developer.android.com/develop/ui/views/components/dialogs?hl=zh-cn#DialogFragment
-            "Because the list appears in the dialog's content area,
-            the dialog cannot show both a message and a list
-            and you should set a title for the dialog with setTitle()."
-             */
-            builder.apply {
-                setTitle("你完成了几次事件${event.content}?")
-                //setMessage("您的事件要求")
-                setSingleChoiceItems(array ,-1){_,_ ->}
-                setPositiveButton("a"){_,_->}
-                show()
+            val create=Calendar.getInstance()
+            create.apply {
+                set(Calendar.YEAR ,prefs.getInt("create_year_${event.series}",0))
+                set(Calendar.MONTH ,prefs.getInt("create_month_${event.series}",0))
+                set(Calendar.DAY_OF_MONTH ,prefs.getInt("create_day_${event.series}",0))}
+
+            var already=prefs.getInt("already",0)
+
+            while( already< Calendar.getInstance().until(create)){
+
+                val b=create//防止影响循环判断
+                b.add(Calendar.DAY_OF_YEAR,1)
+
+                val builder=AlertDialog.Builder(this)
+                val array= arrayOfNulls<CharSequence>(event.time+1)
+                for(i in 0 until event.time+1){
+                    array[i]=i.toString()
+                }//你知道吗,string继承charsequence
+                /*
+                https://stackoverflow.com/questions/7861279/how-to-set-single-choice-items-inside-alertdialog
+                Seems that Buttons, Message and Multiple choice items are mutually exclusive.
+                Try to comment out setMessage(), setPositiveButton() and setNegativeButton().
+                 Didn't check it myself.
+                https://developer.android.com/develop/ui/views/components/dialogs?hl=zh-cn#DialogFragment
+                "Because the list appears in the dialog's content area,
+                the dialog cannot show both a message and a list
+                and you should set a title for the dialog with setTitle()."
+                 */
+                builder.apply {
+
+                    setTitle("在${b.get(Calendar.DAY_OF_MONTH)}号,你完成了几次事件${event.content}?")
+                    //setMessage("您的事件要求")
+                    setSingleChoiceItems(array ,-1){_,_ ->}
+                    setPositiveButton("a"){_,_->}
+                    show()
+                }
+                already += 1
             }
+
+
+
         }
     }
 
