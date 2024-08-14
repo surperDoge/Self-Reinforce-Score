@@ -1,17 +1,19 @@
 package com.example.ultrascore
 
 import android.content.Context
-import android.content.Intent
 import android.icu.util.Calendar
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.Recycler
 
+
+/*
+点击事件来源：
+https://www.practicalcoding.net/post/recyclerview-item-click-kotlin
+ */
 class EventAdapter (val context:Context,val eventList:ArrayList<Event>,val listener: ItemClickListener):
 RecyclerView.Adapter<EventAdapter.ViewHolder>(){
     inner class ViewHolder(view: View):RecyclerView.ViewHolder(view),View.OnClickListener{
@@ -21,19 +23,29 @@ RecyclerView.Adapter<EventAdapter.ViewHolder>(){
         val button:Button=view.findViewById(R.id.button_delete)
 
         init{
-            button.setOnClickListener(this)
+            button.setOnClickListener { val position=adapterPosition
+                if(position!= RecyclerView.NO_POSITION){
+                    listener.onDeleteClick(position)
+                }
+            }
+            view.setOnClickListener {val position=adapterPosition
+                if(position!= RecyclerView.NO_POSITION){
+                    listener.onItemClick(position)
+                }
+            }
         }
 
         override fun onClick(p0: View?) {
             val position=adapterPosition
             if(position!= RecyclerView.NO_POSITION){
-                listener.onItemClick(position)
+                listener.onDeleteClick(position)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view=LayoutInflater.from(context).inflate(R.layout.event_item,parent,false)
+        val view=LayoutInflater.from(context)
+            .inflate(R.layout.event_item,parent,false)
         val viewholder=ViewHolder(view)
         return viewholder
     }
@@ -46,11 +58,13 @@ RecyclerView.Adapter<EventAdapter.ViewHolder>(){
         holder.score.text=what_score
         if(event.state){
             event=event as Event_Daily
-            val a="每日应完成${event.time}次"
+            val today=Calendar.getInstance()
+            val b=event.last-today.until(event.create)
+            val a="每日应完成${event.time}次,还要持续${b}天"
             holder.date.text=a
         }else{
             event=event as Event_Date
-            val a="截止日期${event.date.get(Calendar.YEAR)}/${event.date.get(Calendar.MONTH)+1}/${event.date.get(Calendar.DAY_OF_MONTH)}"
+            val a="截止日期%${event.date.getDate()}"
             holder.date.text=a
         }
     }

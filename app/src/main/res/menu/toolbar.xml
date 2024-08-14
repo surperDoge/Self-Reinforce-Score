@@ -2,15 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_uncomplete"
-        android:title="uncomplete"/>
-    <item
-        android:title="All socre"
-        android:id="@+id/menu_score"/>
+        android:id="@+id/menu_score"
+android:icon="@drawable/score"
+        android:title="分数"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/menu_create"
-        android:title="create new event"/>
+        android:title="创建新事件"
+        android:icon="@drawable/create"
+        app:showAsAction="always"/>
 
 
 </menu>

@@ -34,12 +34,9 @@ class create_event : AppCompatActivity() {
         datepicker.init(date_picked.get(Calendar.YEAR),date_picked.get(Calendar.MONTH),
             date_picked.get(Calendar.DAY_OF_MONTH))
         {view,year,month,day->
-            Log.e("date1","$date_picked")
-            Toast.makeText(this,"$day/$month/$year",Toast.LENGTH_SHORT).show()
             date_picked.apply{set(Calendar.YEAR,year)
                 set(Calendar.DAY_OF_MONTH,day)
                 set(Calendar.MONTH,month)
-                Log.e("date2","$date_picked")
             }
         }
         //创建事件时设置日期和设置次数两种模式的切换
@@ -63,7 +60,6 @@ class create_event : AppCompatActivity() {
             val last=if(binding.editLastTime.text.isEmpty()){31}else
                 binding.editLastTime.text.toString().toInt()
 
-            Log.e("date1","$date_picked")
             intent.apply {
                 putExtra("content",content)
                 putExtra("plusa",plus)
@@ -80,8 +76,7 @@ class create_event : AppCompatActivity() {
             if(content.isEmpty()){ Toast.makeText(this,"事件内容不能为空",Toast.LENGTH_SHORT).show() }
             else if(plus.toString().toInt()>100){Toast.makeText(this,"加分不支持大于100",Toast.LENGTH_SHORT).show() }
             else if(minus.toString().toInt()>100){Toast.makeText(this,"减分不支持大于100",Toast.LENGTH_SHORT).show() }
-            else{//Log.e("a","${plus},${minus}")
-
+            else{
                 setResult(RESULT_OK,intent)
                 finish()}
 

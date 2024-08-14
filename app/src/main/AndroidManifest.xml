@@ -6,13 +6,15 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ultra_score_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ultra_score_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.UltraScore"
         tools:targetApi="31">
-
+        <activity
+            android:name=".activity_score"
+            android:exported="false" />
         <activity
             android:name=".create_event"
             android:exported="false" />
@@ -20,7 +22,6 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
