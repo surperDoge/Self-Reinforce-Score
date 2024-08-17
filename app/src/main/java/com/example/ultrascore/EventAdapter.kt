@@ -64,7 +64,7 @@ RecyclerView.Adapter<EventAdapter.ViewHolder>(){
             holder.date.text=a
         }else{
             event=event as Event_Date
-            val a="截止日期%${event.date.getDate()}"
+            val a="截止日期${event.date.getDate()}"
             holder.date.text=a
         }
     }
