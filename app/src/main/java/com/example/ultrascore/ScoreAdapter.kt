@@ -1,7 +1,6 @@
 package com.example.ultrascore
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +24,6 @@ class ScoreAdapter (val context: Context, val scoreList:ArrayList<Score>):
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val score = scoreList[position]
         holder.text_score.text = score.total.toString()
-        Log.e("adapter",score.end.getDate())
         val a = "${score.start.getDate()}-${score.end.getDate()}"
         holder.text_history.text = a
     }

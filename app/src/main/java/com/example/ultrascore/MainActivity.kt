@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
         else if (event is Event_Daily )
         {   var already=prefs.getInt("already_${event.series}",0)
 
-            while( already<=Calendar.getInstance().until(event.create)){
+            while( already<Calendar.getInstance().until(event.create)){
 
                 val b=event.create//防止影响循环判断
                 b.add(Calendar.DAY_OF_YEAR,1)
@@ -315,8 +315,19 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
     //删除事件的逻辑
     override fun onDeleteClick(positon: Int) {
         val event=eventList[positon]
-        deleteEvent(event)
-        adapter.notifyItemRemoved(positon)
+        val builderConfirm=AlertDialog.Builder(this)
+        builderConfirm.apply {
+            setTitle("删除事件")
+            setMessage("确认要删除${event.content}吗?")
+            setPositiveButton("确认"){_,_->
+                deleteEvent(event)
+                adapter.notifyItemRemoved(positon)
+            }
+            setNegativeButton("取消"){_,_ ->}
+            show()
+            }
+
+
     }
 
     override fun onItemClick(position: Int) {

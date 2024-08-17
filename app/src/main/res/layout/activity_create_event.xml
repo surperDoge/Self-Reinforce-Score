@@ -152,12 +152,12 @@
 
     <Switch
         android:id="@+id/event_switch"
-        android:layout_width="114dp"
-        android:layout_height="31dp"
+        android:layout_width="129dp"
+        android:layout_height="48dp"
         android:layout_marginTop="164dp"
         android:text="每日完成"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.051"
+        app:layout_constraintHorizontal_bias="0.056"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -175,6 +175,9 @@
             android:id="@+id/datepicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:dayOfWeekBackground="#F31111"
+            android:foregroundTint="#00FA0000"
+            android:headerBackground="@color/design_default_color_secondary_variant"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
