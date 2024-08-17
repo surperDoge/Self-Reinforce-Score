@@ -23,5 +23,5 @@ fun Calendar.until(b:Calendar):Int{
 用于获取标准日期格式
  */
 fun Calendar.getDate():String{
-    return "${this.get(Calendar.YEAR)}/${this.get(Calendar.MONTH)}/${this.get(Calendar.DAY_OF_MONTH)}"
+    return "${this.get(Calendar.YEAR)}/${this.get(Calendar.MONTH)+1}/${this.get(Calendar.DAY_OF_MONTH)}"
 }
