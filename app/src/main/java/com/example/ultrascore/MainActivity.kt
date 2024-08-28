@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
 import android.icu.util.Calendar
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -258,7 +259,7 @@ class MainActivity : AppCompatActivity(),ItemClickListener {
                 var choose=0
                 builder.apply {
                     setCancelable(false)
-                    setTitle("在${b.get(Calendar.DAY_OF_MONTH)}号,你完成了几次事件${event.content}?")
+                    setTitle("在${today.get(Calendar.DAY_OF_MONTH)}号,你完成了几次事件${event.content}?")
                     //setMessage("您的事件要求")
                     setSingleChoiceItems(array ,0){_,which->
                         choose=which
